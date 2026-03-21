@@ -1,0 +1,5 @@
+metric,fixed,dynamic,improvement_pct_dynamic_vs_fixed
+avg_wait_time,7.168981601731602,4.191441558441558,41.53365441153938
+max_wait_time,22.0,12.0,45.45454545454545
+throughput_per_min,74.4,74.4,0.0
+avg_total_queue,10.24,5.56,45.70312500000001
