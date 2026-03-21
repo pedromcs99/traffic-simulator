@@ -152,8 +152,15 @@ class _PygameViewBase:
                 return (240, 200, 0)
             return (180, 0, 0)
 
-        pygame.draw.circle(self.screen, color_for(ns_state), (center_x - 35, center_y - 35), 18)
-        pygame.draw.circle(self.screen, color_for(ew_state), (center_x + 35, center_y + 35), 18)
+
+        gap = 100
+        circle_radius = 18
+        #vertical lane
+        pygame.draw.circle(self.screen, color_for(ns_state), (center_x - gap, center_y - (gap + circle_radius*2)), circle_radius)
+        pygame.draw.circle(self.screen, color_for(ns_state), (center_x + gap, center_y + (gap + circle_radius*2)), circle_radius)
+        #horizontal lane
+        pygame.draw.circle(self.screen, color_for(ew_state), (center_x - (gap + circle_radius*2), center_y + gap), circle_radius)
+        pygame.draw.circle(self.screen, color_for(ew_state), (center_x + (gap + circle_radius*2), center_y - gap), circle_radius)
 
     def _num_lanes(self) -> int:
         return self.sim.config.num_lanes_per_approach
