@@ -6,9 +6,9 @@ def advance_trapezoid_speed(
     v: float,
     dt: float,
     *,
-    v_max: float = 7.0,
-    accel: float = 14.0,
-    brake: float = 18.0,
+    v_max: float = 2.0,
+    accel: float = 1.0,
+    brake: float = 2.0,
 ) -> tuple[float, float]:
     """Return new (s, v) with s in [0, 1]; v is speed along normalized path."""
     remaining = max(0.0, 1.0 - s)
