@@ -135,11 +135,33 @@ class _PygameViewBase:
         pygame.draw.rect(self.screen, road_color, (center_x - h, 0, 2 * h, self.config.height))
         pygame.draw.rect(self.screen, road_color, (0, center_y - h, self.config.width, 2 * h))
 
+        # draw lines
+
+        self._draw_road_lines(center_x,center_y)
         self._draw_lights(center_x, center_y)
         self._draw_queued_cars(center_x, center_y)
         self._draw_crossing_cars(center_x, center_y)
         self._draw_stats()
         pygame.display.flip()
+
+
+    def _draw_road_lines(self, center_x: int, center_y: int) -> None: 
+        h = INTERSECTION_HALF_PX
+        line_color = (255, 255, 255)
+        line_length = 50
+
+        horizontal_lane_counter = 0 
+        vertical_lane_counter = 0
+        
+        while(vertical_lane_counter < self.config.height):
+            pygame.draw.rect(self.screen, line_color, (self.config.width//2, 0 + vertical_lane_counter, 20, line_length))
+            vertical_lane_counter+=100
+
+        while(horizontal_lane_counter < self.config.width):
+            pygame.draw.rect(self.screen, line_color, (0 + horizontal_lane_counter, self.config.height//2, line_length, 20))
+            horizontal_lane_counter+=100
+        
+
 
     def _draw_lights(self, center_x: int, center_y: int) -> None:
         ns_state = self.sim.intersection.light.state_for_axis(Axis.NS)
@@ -179,10 +201,15 @@ class _PygameViewBase:
                     self.config.queue_spacing_px,
                 )
                 color = _car_color(vehicle.id)
+                car_width = 40
+                car_length = 10
+                space_between_cars = 5
+                space_between_lanes = 70
+
                 if lid.approach in (Approach.N, Approach.S):
-                    pygame.draw.rect(self.screen, color, (int(cx - 20), int(cy - 5), 40, 10))
+                    pygame.draw.rect(self.screen, color, (int(cx - space_between_lanes), int(cy - 5), car_width, car_length))
                 else:
-                    pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - 20), 10, 40))
+                    pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - space_between_lanes), car_length, car_width))
 
     def _draw_stats(self) -> None:
         summary = self.sim.metrics.final_summary()
