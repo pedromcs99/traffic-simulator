@@ -11,7 +11,8 @@ INTERSECTION_HALF_PX: int = 120
 # Default pixels from center to stop line along an approach (front of queue).
 APPROACH_LENGTH_PX: int = INTERSECTION_HALF_PX
 
-LANE_WIDTH_PX: float = 28.0
+# car width = 40 
+LANE_WIDTH_PX: float = 40.0 + 10.0
 
 
 def lateral_offset_px(lane_index: int, num_lanes_per_approach: int) -> float:
