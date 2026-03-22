@@ -1,7 +1,6 @@
 """Pygame implementations: linear crossing (simple) vs accel/brake (kinematic)."""
 
 from __future__ import annotations
-
 from dataclasses import dataclass
 
 import pygame
@@ -70,7 +69,9 @@ class AnimatedCarKinematic:
 class _PygameViewBase:
     """Shared pygame loop, timescale, roads, lights, queues."""
 
-    def __init__(self, sim: IntersectionSimulation, config: RenderConfig | None = None) -> None:
+    def __init__(
+        self, sim: IntersectionSimulation, config: RenderConfig | None = None
+    ) -> None:
         self.sim = sim
         self.config = config or RenderConfig()
         self._sim_time_accumulator: float = 0.0
@@ -95,13 +96,18 @@ class _PygameViewBase:
             real_dt_ms = self.clock.tick(fps)
             real_dt = real_dt_ms / 1000.0
             if self.config.real_seconds_per_sim_second > 0:
-                self._sim_time_accumulator += real_dt / self.config.real_seconds_per_sim_second
+                self._sim_time_accumulator += (
+                    real_dt / self.config.real_seconds_per_sim_second
+                )
             else:
                 self._sim_time_accumulator += real_dt
 
             steps = 0
             dt = self.sim.config.dt
-            while self._sim_time_accumulator >= dt and steps < self.config.max_sim_steps_per_frame:
+            while (
+                self._sim_time_accumulator >= dt
+                and steps < self.config.max_sim_steps_per_frame
+            ):
                 self.sim.step()
                 for lid, vehicle in self.sim.departed_this_step:
                     self._on_departure(lid, vehicle)
@@ -110,7 +116,9 @@ class _PygameViewBase:
 
             self._tick_animations(real_dt)
 
-            if duration_seconds is not None and self.sim.sim_time >= float(duration_seconds):
+            if duration_seconds is not None and self.sim.sim_time >= float(
+                duration_seconds
+            ):
                 running = False
 
             self._draw_frame()
@@ -128,43 +136,81 @@ class _PygameViewBase:
 
     def _draw_frame(self) -> None:
         self.screen.fill(self.config.background_color)
+
+        road_width = 0
         center_x = self.config.width // 2
         center_y = self.config.height // 2
-        road_color = (60, 60, 60)
-        h = INTERSECTION_HALF_PX
-        pygame.draw.rect(self.screen, road_color, (center_x - h, 0, 2 * h, self.config.height))
-        pygame.draw.rect(self.screen, road_color, (0, center_y - h, self.config.width, 2 * h))
 
         # draw lines
-
-        self._draw_road_lines(center_x,center_y)
-        self._draw_lights(center_x, center_y)
+        self._draw_road(center_x, center_y)
+        self._draw_road_lines(center_x, center_y)
+        self._draw_lights(center_x, center_y, road_width)
         self._draw_queued_cars(center_x, center_y)
         self._draw_crossing_cars(center_x, center_y)
         self._draw_stats()
         pygame.display.flip()
 
+    def _draw_road(self, center_x: int, center_y: int) -> None:
+        road_color = (60, 60, 60)
+        center_x = self.config.width // 2
+        center_y = self.config.height // 2
+        pygame.draw.rect(
+            self.screen,
+            road_color,
+            (
+                center_x - INTERSECTION_HALF_PX,
+                0,
+                2 * INTERSECTION_HALF_PX,
+                self.config.height,
+            ),
+        )
+        pygame.draw.rect(
+            self.screen,
+            road_color,
+            (
+                0,
+                center_y - INTERSECTION_HALF_PX,
+                self.config.width,
+                2 * INTERSECTION_HALF_PX,
+            ),
+        )
 
-    def _draw_road_lines(self, center_x: int, center_y: int) -> None: 
+    def _draw_road_lines(self, center_x: int, center_y: int) -> None:
         h = INTERSECTION_HALF_PX
         line_color = (255, 255, 255)
         line_length = 50
         line_height = 20
 
-        horizontal_lane_counter = 0 
+        horizontal_lane_counter = 0
         vertical_lane_counter = 0
-        
-        while(vertical_lane_counter < self.config.height):
-            pygame.draw.rect(self.screen, line_color, ((self.config.width//2) - (line_height//2), 0 + vertical_lane_counter, line_height, line_length))
-            vertical_lane_counter+=100
 
-        while(horizontal_lane_counter < self.config.width):
-            pygame.draw.rect(self.screen, line_color, (0 + horizontal_lane_counter, self.config.height//2 - (line_height//2), line_length, line_height))
-            horizontal_lane_counter+=100
-        
+        while vertical_lane_counter < self.config.height:
+            pygame.draw.rect(
+                self.screen,
+                line_color,
+                (
+                    (self.config.width // 2) - (line_height // 2),
+                    0 + vertical_lane_counter,
+                    line_height,
+                    line_length,
+                ),
+            )
+            vertical_lane_counter += 100
 
+        while horizontal_lane_counter < self.config.width:
+            pygame.draw.rect(
+                self.screen,
+                line_color,
+                (
+                    0 + horizontal_lane_counter,
+                    self.config.height // 2 - (line_height // 2),
+                    line_length,
+                    line_height,
+                ),
+            )
+            horizontal_lane_counter += 100
 
-    def _draw_lights(self, center_x: int, center_y: int) -> None:
+    def _draw_lights(self, center_x: int, center_y: int, road_width: int) -> None:
         ns_state = self.sim.intersection.light.state_for_axis(Axis.NS)
         ew_state = self.sim.intersection.light.state_for_axis(Axis.EW)
 
@@ -175,15 +221,34 @@ class _PygameViewBase:
                 return (240, 200, 0)
             return (180, 0, 0)
 
-
-        gap = 100
         circle_radius = 18
-        #vertical lane
-        pygame.draw.circle(self.screen, color_for(ns_state), (center_x - gap, center_y - (gap + circle_radius*2)), circle_radius)
-        pygame.draw.circle(self.screen, color_for(ns_state), (center_x + gap, center_y + (gap + circle_radius*2)), circle_radius)
-        #horizontal lane
-        pygame.draw.circle(self.screen, color_for(ew_state), (center_x - (gap + circle_radius*2), center_y + gap), circle_radius)
-        pygame.draw.circle(self.screen, color_for(ew_state), (center_x + (gap + circle_radius*2), center_y - gap), circle_radius)
+        half_road_plus_diameter = INTERSECTION_HALF_PX + circle_radius * 2
+        # vertical lane
+        pygame.draw.circle(
+            self.screen,
+            color_for(ns_state),
+            (center_x - half_road_plus_diameter, center_y - half_road_plus_diameter),
+            circle_radius,0,False,True,True,False
+        )
+        pygame.draw.circle(
+            self.screen,
+            color_for(ns_state),
+            (center_x + half_road_plus_diameter, center_y + half_road_plus_diameter),
+            circle_radius,
+        )
+        # horizontal lane
+        pygame.draw.circle(
+            self.screen,
+            color_for(ew_state),
+            (center_x - half_road_plus_diameter, center_y + half_road_plus_diameter),
+            circle_radius,
+        )
+        pygame.draw.circle(
+            self.screen,
+            color_for(ew_state),
+            (center_x + half_road_plus_diameter, center_y - half_road_plus_diameter),
+            circle_radius,
+        )
 
     def _num_lanes(self) -> int:
         return self.sim.config.num_lanes_per_approach
@@ -205,11 +270,28 @@ class _PygameViewBase:
                 space_between_lanes = 70
                 vehicle_type = vehicle.vehicle_type
 
-                
                 if lid.approach in (Approach.N, Approach.S):
-                    pygame.draw.rect(self.screen, color, (int(cx - space_between_lanes), int(cy - 5),  vehicle_type.length, vehicle_type.width))
+                    pygame.draw.rect(
+                        self.screen,
+                        color,
+                        (
+                            int(cx - space_between_lanes),
+                            int(cy - 5),
+                            vehicle_type.length,
+                            vehicle_type.width,
+                        ),
+                    )
                 else:
-                    pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - space_between_lanes),  vehicle_type.width, vehicle_type.length))
+                    pygame.draw.rect(
+                        self.screen,
+                        color,
+                        (
+                            int(cx - 5),
+                            int(cy - space_between_lanes),
+                            vehicle_type.width,
+                            vehicle_type.length,
+                        ),
+                    )
 
     def _draw_stats(self) -> None:
         summary = self.sim.metrics.final_summary()
@@ -232,7 +314,9 @@ class _PygameViewBase:
 class PygameSimpleVisualizer(_PygameViewBase):
     """Uniform-speed crossing (linear progress in real time)."""
 
-    def __init__(self, sim: IntersectionSimulation, config: RenderConfig | None = None) -> None:
+    def __init__(
+        self, sim: IntersectionSimulation, config: RenderConfig | None = None
+    ) -> None:
         super().__init__(sim, config)
         self._animated: list[AnimatedCarSimple] = []
 
@@ -258,15 +342,35 @@ class PygameSimpleVisualizer(_PygameViewBase):
             color = _car_color(ac.vehicle_id)
             vehicle_type = ac.vehicle.vehicle_type
             if ac.lane_id.approach in (Approach.N, Approach.S):
-                pygame.draw.rect(self.screen, color, (int(cx - 20), int(cy - 5), vehicle_type.length, vehicle_type.width))
+                pygame.draw.rect(
+                    self.screen,
+                    color,
+                    (
+                        int(cx - 20),
+                        int(cy - 5),
+                        vehicle_type.length,
+                        vehicle_type.width,
+                    ),
+                )
             else:
-                pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - 20), vehicle_type.width, vehicle_type.length))
+                pygame.draw.rect(
+                    self.screen,
+                    color,
+                    (
+                        int(cx - 5),
+                        int(cy - 20),
+                        vehicle_type.width,
+                        vehicle_type.length,
+                    ),
+                )
 
 
 class PygameKinematicVisualizer(_PygameViewBase):
     """Accel / cruise / brake style motion along the crossing segment (visual only)."""
 
-    def __init__(self, sim: IntersectionSimulation, config: RenderConfig | None = None) -> None:
+    def __init__(
+        self, sim: IntersectionSimulation, config: RenderConfig | None = None
+    ) -> None:
         super().__init__(sim, config)
         self._animated: list[AnimatedCarKinematic] = []
 
@@ -298,9 +402,27 @@ class PygameKinematicVisualizer(_PygameViewBase):
             space_between_lanes = 70
 
             if ac.lane_id.approach in (Approach.N, Approach.S):
-                pygame.draw.rect(self.screen, color, (int(cx - space_between_lanes), int(cy - 5), vehicle_type.length, vehicle_type.width))
+                pygame.draw.rect(
+                    self.screen,
+                    color,
+                    (
+                        int(cx - space_between_lanes),
+                        int(cy - 5),
+                        vehicle_type.length,
+                        vehicle_type.width,
+                    ),
+                )
             else:
-                pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - space_between_lanes), vehicle_type.width, vehicle_type.length))
+                pygame.draw.rect(
+                    self.screen,
+                    color,
+                    (
+                        int(cx - 5),
+                        int(cy - space_between_lanes),
+                        vehicle_type.width,
+                        vehicle_type.length,
+                    ),
+                )
 
 
 def create_pygame_visualizer(
