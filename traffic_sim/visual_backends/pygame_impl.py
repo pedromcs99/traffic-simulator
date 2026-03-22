@@ -201,15 +201,14 @@ class _PygameViewBase:
                     self.config.queue_spacing_px,
                 )
                 color = _car_color(vehicle.id)
-                car_width = 40
-                car_length = 10
-                space_between_cars = 5
                 space_between_lanes = 70
+                vehicle_type = vehicle.vehicle_type
 
+                
                 if lid.approach in (Approach.N, Approach.S):
-                    pygame.draw.rect(self.screen, color, (int(cx - space_between_lanes), int(cy - 5), car_width, car_length))
+                    pygame.draw.rect(self.screen, color, (int(cx - space_between_lanes), int(cy - 5),  vehicle_type.length, vehicle_type.width))
                 else:
-                    pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - space_between_lanes), car_length, car_width))
+                    pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - space_between_lanes),  vehicle_type.width, vehicle_type.length))
 
     def _draw_stats(self) -> None:
         summary = self.sim.metrics.final_summary()
@@ -256,10 +255,11 @@ class PygameSimpleVisualizer(_PygameViewBase):
             cx = start[0] + (end[0] - start[0]) * t
             cy = start[1] + (end[1] - start[1]) * t
             color = _car_color(ac.vehicle_id)
+            vehicle_type = ac.vehicle.vehicle_type
             if ac.lane_id.approach in (Approach.N, Approach.S):
-                pygame.draw.rect(self.screen, color, (int(cx - 20), int(cy - 5), 40, 10))
+                pygame.draw.rect(self.screen, color, (int(cx - 20), int(cy - 5), vehicle_type.length, vehicle_type.width))
             else:
-                pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - 20), 10, 40))
+                pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - 20), vehicle_type.width, vehicle_type.length))
 
 
 class PygameKinematicVisualizer(_PygameViewBase):

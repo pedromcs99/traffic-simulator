@@ -43,6 +43,15 @@ class LaneId:
     approach: Approach
     lane_index: int = 0
 
+@dataclass(frozen=True)
+class VehicleType:
+    length: int
+    width: int
+
+
+CAR = VehicleType(40, 10)
+TRUCK = VehicleType(80, 10)
+
 
 @dataclass
 class Vehicle:
@@ -50,7 +59,7 @@ class Vehicle:
     lane_id: LaneId
     movement: Movement = Movement.STRAIGHT
     wait_time: float = 0.0
-
+    vehicle_type: VehicleType = CAR
     @property
     def approach(self) -> Approach:
         return self.lane_id.approach
