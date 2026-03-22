@@ -62,7 +62,7 @@ class AnimatedCarSimple:
 @dataclass
 class AnimatedCarKinematic:
     lane_id: LaneId
-    vehicle_id: int
+    vehicle: Vehicle
     s: float = 0.0
     v: float = 0.0
 
@@ -274,7 +274,7 @@ class PygameKinematicVisualizer(_PygameViewBase):
         self._animated = []
 
     def _on_departure(self, lid: LaneId, vehicle: Vehicle) -> None:
-        self._animated.append(AnimatedCarKinematic(lane_id=lid, vehicle_id=vehicle.id))
+        self._animated.append(AnimatedCarKinematic(lane_id=lid, vehicle=vehicle))
 
     def _tick_animations(self, real_dt: float) -> None:
         next_list: list[AnimatedCarKinematic] = []
@@ -293,11 +293,14 @@ class PygameKinematicVisualizer(_PygameViewBase):
             t = min(1.0, ac.s)
             cx = start[0] + (end[0] - start[0]) * t
             cy = start[1] + (end[1] - start[1]) * t
-            color = _car_color(ac.vehicle_id)
+            color = _car_color(ac.vehicle.id)
+            vehicle_type = ac.vehicle.vehicle_type
+            space_between_lanes = 70
+
             if ac.lane_id.approach in (Approach.N, Approach.S):
-                pygame.draw.rect(self.screen, color, (int(cx - 20), int(cy - 5), 40, 10))
+                pygame.draw.rect(self.screen, color, (int(cx - space_between_lanes), int(cy - 5), vehicle_type.length, vehicle_type.width))
             else:
-                pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - 20), 10, 40))
+                pygame.draw.rect(self.screen, color, (int(cx - 5), int(cy - space_between_lanes), vehicle_type.width, vehicle_type.length))
 
 
 def create_pygame_visualizer(
