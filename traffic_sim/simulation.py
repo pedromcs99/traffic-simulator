@@ -48,7 +48,9 @@ class IntersectionSimulation:
     for visualization/debugging; headless benchmarks can ignore it.
     """
 
-    def __init__(self, controller: TrafficController, config: SimulationConfig | None = None) -> None:
+    def __init__(
+        self, controller: TrafficController, config: SimulationConfig | None = None
+    ) -> None:
         self.controller = controller
         self.config = config or SimulationConfig()
         self.random = random.Random(self.config.seed)
@@ -118,10 +120,16 @@ class IntersectionSimulation:
             if self.random.random() < probability:
                 self._vehicle_counter += 1
                 approach = Approach(lane_name)
-                lane_idx = self.random.randint(0, self.config.num_lanes_per_approach - 1)
+                lane_idx = self.random.randint(
+                    0, self.config.num_lanes_per_approach - 1
+                )
                 lid = LaneId(approach, lane_idx)
                 self.intersection.lanes[lid].enqueue(
-                    Vehicle(id=self._vehicle_counter, lane_id=lid, movement=Movement.STRAIGHT)
+                    Vehicle(
+                        id=self._vehicle_counter,
+                        lane_id=lid,
+                        movement=Movement.STRAIGHT,
+                    )
                 )
 
     def _increment_wait_times(self) -> None:
@@ -136,7 +144,10 @@ class IntersectionSimulation:
             self._active_green_duration = action.target_green_duration
 
         if self.intersection.light.is_yellow:
-            if action.switch_axis_after_yellow or self.yellow_elapsed >= self.config.yellow_duration:
+            if (
+                action.switch_axis_after_yellow
+                or self.yellow_elapsed >= self.config.yellow_duration
+            ):
                 self._switch_axis()
             return
 
@@ -178,7 +189,11 @@ class IntersectionSimulation:
 
     def _record_metrics(self) -> None:
         """Store one snapshot for charts/CSV; uses post-move queue state."""
-        waits = [v.wait_time for lane in self.intersection.lanes.values() for v in lane.vehicles]
+        waits = [
+            v.wait_time
+            for lane in self.intersection.lanes.values()
+            for v in lane.vehicles
+        ]
         avg_wait = sum(waits) / len(waits) if waits else 0.0
         max_wait = max(waits) if waits else 0.0
         throughput_per_min = (self.completed_vehicles / max(self.sim_time, 1.0)) * 60.0

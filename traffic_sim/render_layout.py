@@ -6,12 +6,13 @@ from traffic_sim.models import Approach, LaneId
 
 
 # Half-width/height of the paved intersection box in pixels (must match road rects).
+# road half width
 INTERSECTION_HALF_PX: int = 120
 
 # Default pixels from center to stop line along an approach (front of queue).
 APPROACH_LENGTH_PX: int = INTERSECTION_HALF_PX
 
-# car width = 40 
+# car width = 40
 LANE_WIDTH_PX: float = 40.0 + 10.0
 
 

@@ -8,5 +8,4 @@ from typing import Protocol
 class TrafficVisualizer(Protocol):
     """Runs the interactive window until quit or duration."""
 
-    def run(self, duration_seconds: int | None = None, fps: int = 30) -> None:
-        ...
+    def run(self, duration_seconds: int | None = None, fps: int = 30) -> None: ...

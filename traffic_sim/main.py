@@ -17,7 +17,9 @@ def parse_args() -> argparse.Namespace:
         help="Stop after this many simulated seconds (default: run until you close the window)",
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--fps", type=int, default=30, help="Max frames per second (default: 30)")
+    parser.add_argument(
+        "--fps", type=int, default=30, help="Max frames per second (default: 30)"
+    )
     parser.add_argument(
         "--timescale",
         type=float,
@@ -60,9 +62,14 @@ def main() -> None:
     from traffic_sim.controllers.dynamic import DynamicController
     from traffic_sim.controllers.fixed_time import FixedTimeController
     from traffic_sim.simulation import IntersectionSimulation, SimulationConfig
-    from traffic_sim.visual_backends.pygame_impl import RenderConfig, create_pygame_visualizer
+    from traffic_sim.visual_backends.pygame_impl import (
+        RenderConfig,
+        create_pygame_visualizer,
+    )
 
-    controller = FixedTimeController() if args.controller == "fixed" else DynamicController()
+    controller = (
+        FixedTimeController() if args.controller == "fixed" else DynamicController()
+    )
     lanes = max(1, args.lanes)
     config = SimulationConfig(seed=args.seed, num_lanes_per_approach=lanes)
     simulation = IntersectionSimulation(controller=controller, config=config)

@@ -43,6 +43,7 @@ class LaneId:
     approach: Approach
     lane_index: int = 0
 
+
 @dataclass(frozen=True)
 class VehicleType:
     length: int
@@ -60,6 +61,7 @@ class Vehicle:
     movement: Movement = Movement.STRAIGHT
     wait_time: float = 0.0
     vehicle_type: VehicleType = CAR
+
     @property
     def approach(self) -> Approach:
         return self.lane_id.approach
@@ -124,8 +126,16 @@ class Intersection:
 
     def axis_queue_length(self, axis: Axis) -> int:
         if axis == Axis.NS:
-            return sum(self.lanes[lid].queue_length for lid in self.lanes if lid.approach in (Approach.N, Approach.S))
-        return sum(self.lanes[lid].queue_length for lid in self.lanes if lid.approach in (Approach.E, Approach.W))
+            return sum(
+                self.lanes[lid].queue_length
+                for lid in self.lanes
+                if lid.approach in (Approach.N, Approach.S)
+            )
+        return sum(
+            self.lanes[lid].queue_length
+            for lid in self.lanes
+            if lid.approach in (Approach.E, Approach.W)
+        )
 
     def queue_lengths(self) -> Dict[str, int]:
         """Per-approach totals (sums parallel lanes) — legacy keys N,S,E,W for metrics/controllers."""

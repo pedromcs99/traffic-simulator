@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from traffic_sim.controllers.base import ControllerAction, SimulationObservation, TrafficController
+from traffic_sim.controllers.base import (
+    ControllerAction,
+    SimulationObservation,
+    TrafficController,
+)
 
 
 @dataclass

@@ -17,14 +17,18 @@ from traffic_sim.simulation import IntersectionSimulation, SimulationConfig
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Compare fixed and dynamic traffic controllers")
+    parser = argparse.ArgumentParser(
+        description="Compare fixed and dynamic traffic controllers"
+    )
     parser.add_argument("--duration", type=int, default=300)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output-dir", type=Path, default=Path("experiments/results"))
     return parser.parse_args()
 
 
-def run_once(name: str, sim: IntersectionSimulation, duration: int, output_dir: Path) -> dict[str, float]:
+def run_once(
+    name: str, sim: IntersectionSimulation, duration: int, output_dir: Path
+) -> dict[str, float]:
     metrics = sim.run(duration)
     metrics.write_csv(output_dir / f"{name}_timeseries.csv")
     return metrics.final_summary()
@@ -55,16 +59,38 @@ def main() -> None:
     dynamic_summary = run_once("dynamic", dynamic_sim, args.duration, args.output_dir)
 
     comparison_rows = [
-        ("avg_wait_time", fixed_summary["avg_wait_time"], dynamic_summary["avg_wait_time"], True),
-        ("max_wait_time", fixed_summary["max_wait_time"], dynamic_summary["max_wait_time"], True),
-        ("throughput_per_min", fixed_summary["throughput_per_min"], dynamic_summary["throughput_per_min"], False),
-        ("avg_total_queue", fixed_summary["avg_total_queue"], dynamic_summary["avg_total_queue"], True),
+        (
+            "avg_wait_time",
+            fixed_summary["avg_wait_time"],
+            dynamic_summary["avg_wait_time"],
+            True,
+        ),
+        (
+            "max_wait_time",
+            fixed_summary["max_wait_time"],
+            dynamic_summary["max_wait_time"],
+            True,
+        ),
+        (
+            "throughput_per_min",
+            fixed_summary["throughput_per_min"],
+            dynamic_summary["throughput_per_min"],
+            False,
+        ),
+        (
+            "avg_total_queue",
+            fixed_summary["avg_total_queue"],
+            dynamic_summary["avg_total_queue"],
+            True,
+        ),
     ]
 
     summary_path = args.output_dir / "comparison_summary.csv"
     with summary_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
-        writer.writerow(["metric", "fixed", "dynamic", "improvement_pct_dynamic_vs_fixed"])
+        writer.writerow(
+            ["metric", "fixed", "dynamic", "improvement_pct_dynamic_vs_fixed"]
+        )
         for metric, fixed_value, dynamic_value, lower_is_better in comparison_rows:
             writer.writerow(
                 [

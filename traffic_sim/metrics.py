@@ -56,7 +56,9 @@ class MetricsCollector:
                 "throughput_per_min": 0.0,
                 "avg_total_queue": 0.0,
             }
-        total_queues = [s.queue_n + s.queue_s + s.queue_e + s.queue_w for s in self.snapshots]
+        total_queues = [
+            s.queue_n + s.queue_s + s.queue_e + s.queue_w for s in self.snapshots
+        ]
         return {
             "avg_wait_time": mean(s.avg_wait_time for s in self.snapshots),
             "max_wait_time": max(s.max_wait_time for s in self.snapshots),
