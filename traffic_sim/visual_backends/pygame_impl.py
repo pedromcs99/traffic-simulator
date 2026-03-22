@@ -149,16 +149,17 @@ class _PygameViewBase:
         h = INTERSECTION_HALF_PX
         line_color = (255, 255, 255)
         line_length = 50
+        line_height = 20
 
         horizontal_lane_counter = 0 
         vertical_lane_counter = 0
         
         while(vertical_lane_counter < self.config.height):
-            pygame.draw.rect(self.screen, line_color, (self.config.width//2, 0 + vertical_lane_counter, 20, line_length))
+            pygame.draw.rect(self.screen, line_color, ((self.config.width//2) - (line_height//2), 0 + vertical_lane_counter, line_height, line_length))
             vertical_lane_counter+=100
 
         while(horizontal_lane_counter < self.config.width):
-            pygame.draw.rect(self.screen, line_color, (0 + horizontal_lane_counter, self.config.height//2, line_length, 20))
+            pygame.draw.rect(self.screen, line_color, (0 + horizontal_lane_counter, self.config.height//2 - (line_height//2), line_length, line_height))
             horizontal_lane_counter+=100
         
 
