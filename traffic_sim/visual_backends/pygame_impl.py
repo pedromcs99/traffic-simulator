@@ -255,6 +255,7 @@ class _PygameViewBase:
         return self.sim.config.num_lanes_per_approach
 
     def _draw_queued_cars(self, center_x: int, center_y: int) -> None:
+        QUEUED_CARS_LANE_OFFSET = 50
         n = self._num_lanes()
         for lid, lane in self.sim.intersection.lanes.items():
             for index, vehicle in enumerate(lane.vehicles):
@@ -264,7 +265,7 @@ class _PygameViewBase:
                     center_x,
                     center_y,
                     n,
-                    self.config.approach_length_px,
+                    self.config.approach_length_px + QUEUED_CARS_LANE_OFFSET,
                     self.config.queue_spacing_px,
                 )
                 color = _car_color(vehicle.id)
