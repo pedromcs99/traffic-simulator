@@ -241,14 +241,14 @@ class _PygameViewBase:
         pygame.draw.circle(
             self.screen,
             color_for(ew_state),
-            (center_x - half_road_plus_diameter, center_y + half_road_plus_diameter),
-            circle_radius,0,True,True,False,False
+            (center_x - (half_road_plus_diameter -circle_radius), center_y + half_road_plus_diameter),
+            circle_radius,0,False,True,True,False
         )
         pygame.draw.circle(
             self.screen,
             color_for(ew_state),
-            (center_x + half_road_plus_diameter, center_y - half_road_plus_diameter),
-            circle_radius,
+            (center_x + (half_road_plus_diameter -circle_radius), center_y - half_road_plus_diameter),
+            circle_radius,0,True,False,False,True
         )
 
     def _num_lanes(self) -> int:
