@@ -177,10 +177,11 @@ class _PygameViewBase:
         )
 
     def _draw_road_lines(self, center_x: int, center_y: int) -> None:
-        h = INTERSECTION_HALF_PX
+        HALF_ROAD_WIDTH = INTERSECTION_HALF_PX
         line_color = (255, 255, 255)
         line_length = 50
         line_height = 20
+        APPROACH_LINE_WIDTH = 5
 
         horizontal_lane_counter = 0
         vertical_lane_counter = 0
@@ -210,6 +211,23 @@ class _PygameViewBase:
                 ),
             )
             horizontal_lane_counter += 100
+
+
+        # vertical lines
+        pygame.draw.rect(
+            self.screen, line_color, (center_x - (HALF_ROAD_WIDTH + APPROACH_LINE_WIDTH + 20), center_y - HALF_ROAD_WIDTH, APPROACH_LINE_WIDTH, HALF_ROAD_WIDTH*2)
+        )
+        pygame.draw.rect(
+            self.screen, line_color, (center_x + (HALF_ROAD_WIDTH + APPROACH_LINE_WIDTH + 20), center_y - HALF_ROAD_WIDTH, APPROACH_LINE_WIDTH, HALF_ROAD_WIDTH*2)
+        )
+
+        # horizontal lines
+        pygame.draw.rect(
+            self.screen, line_color, (center_x -HALF_ROAD_WIDTH, center_y +(HALF_ROAD_WIDTH + APPROACH_LINE_WIDTH + 20) , HALF_ROAD_WIDTH*2,APPROACH_LINE_WIDTH)
+        )
+        pygame.draw.rect(
+            self.screen, line_color, (center_x -HALF_ROAD_WIDTH , center_y - (HALF_ROAD_WIDTH + APPROACH_LINE_WIDTH + 20),  HALF_ROAD_WIDTH*2,APPROACH_LINE_WIDTH)
+        )
 
     def _draw_lights(self, center_x: int, center_y: int, road_width: int) -> None:
         ns_state = self.sim.intersection.light.state_for_axis(Axis.NS)
